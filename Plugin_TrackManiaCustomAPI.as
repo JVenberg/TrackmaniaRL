@@ -5,6 +5,7 @@
 
 int PORT = 65432;
 string URL = "127.0.0.1";
+float CRASH_ACCELERATION = -0.1;
 
 void Main() {
     auto listenSock = Net::Socket();
@@ -22,16 +23,34 @@ void Main() {
 
 void SendData(ref@ socket) {
     Net::Socket@ clientSocket = cast<Net::Socket>(socket);
+
+    float prevSpeed = 0;
+    float prevTime = 0;
+    bool crashing = false;
     while (clientSocket.CanRead()) {
-        print('Write');
         CGameManiaPlanetScriptAPI@ maniaApi = GetManiaScriptAPI();
         CSmScriptPlayer@ scriptApi = GetPlayerScriptAPI();
+
         auto json = Json::Object();
-        json['running'] = !maniaApi.ActiveContext_InGameMenuDisplayed && maniaApi.ActiveContext_MenuFrame =v  = 'Unassigned';
-        // if (scriptApi !is null) {
-        json['speed'] = scriptApi.Speed;
-        json['distance'] = scriptApi.Distance;
-        // }
+        json['running'] = !maniaApi.ActiveContext_InGameMenuDisplayed && maniaApi.ActiveContext_MenuFrame == 'Unassigned';
+        if (scriptApi !is null && scriptApi.CurrentRaceTime != prevTime) {
+            json['running'] = json['running'] && scriptApi.CurrentRaceTime > 0;
+            json['acceleration'] = (scriptApi.Speed - prevSpeed) / (scriptApi.CurrentRaceTime - prevTime);
+            if (json['acceleration'] < CRASH_ACCELERATION) {
+                if (!crashing) {
+                    json['crashed'] = true;
+                    crashing = true;
+                }
+            } else if (crashing) {
+                crashing = false;
+            }
+            json['speed'] = scriptApi.Speed;
+            json['distance'] = scriptApi.Distance;
+            json['time'] = scriptApi.CurrentRaceTime;
+
+            prevSpeed = scriptApi.Speed;
+            prevTime = scriptApi.CurrentRaceTime;
+        }
         if (!clientSocket.WriteRaw(Json::Write(json) + '\n')) {
             break;
         }

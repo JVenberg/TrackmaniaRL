@@ -14,4 +14,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         line = conn_file.readline().strip()
         if len(line) > 0:
             json_data = json.loads(line)
+            # print(json_data)
+            if 'crashed' in json_data and json_data['crashed']:
+                print('Crash')
             print(json_data)
