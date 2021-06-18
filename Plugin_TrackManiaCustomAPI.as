@@ -28,7 +28,9 @@ void SendData(ref@ socket) {
         CSmScriptPlayer@ scriptApi = GetPlayerScriptAPI();
         auto json = Json::Object();
         json['running'] = !maniaApi.ActiveContext_InGameMenuDisplayed && maniaApi.ActiveContext_MenuFrame =v  = 'Unassigned';
-        // if (scriptApi !is null && maniaApi !is null) {
+        // if (scriptApi !is null) {
+        json['speed'] = scriptApi.Speed;
+        json['distance'] = scriptApi.Distance;
         // }
         if (!clientSocket.WriteRaw(Json::Write(json) + '\n')) {
             break;
