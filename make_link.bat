@@ -1,0 +1,2 @@
+DEL C:\Users\Jack\OpenplanetNext\Scripts\Plugin_TrackManiaCustomAPI.as
+MKLINK /H C:\Users\Jack\OpenplanetNext\Scripts\Plugin_TrackManiaCustomAPI.as C:\Users\Jack\Programs\TrackmaniaRL\Plugin_TrackManiaCustomAPI.as
